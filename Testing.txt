@@ -1,2 +1,0 @@
-commit dengan issue
-commit issue sudah fix
