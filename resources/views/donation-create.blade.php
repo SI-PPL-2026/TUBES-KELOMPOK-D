@@ -111,6 +111,13 @@
 
                     <form action="{{ route('donation.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                         @csrf
+                        @if ($errors->any())
+                            <div class="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-semibold space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <p>• {{ $error }}</p>
+                                @endforeach
+                            </div>
+                        @endif
                         
                         <!-- Pilihan Nominal Cepat (Pill Buttons dari Figma) -->
                         <div class="space-y-2">
@@ -154,7 +161,7 @@
                             <label class="block text-xs font-bold uppercase tracking-wider text-[#1F3B2E]">
                                 Nama Donatur <span class="text-rose-500">*</span>
                             </label>
-                            <input type="text" id="donor-name" name="name" required placeholder="Nama Anda atau institusi"
+                            <input type="text" id="donor-name" name="name" value="{{ old('name', Auth::user()->name ?? '') }}" required placeholder="Nama Anda atau institusi"
                                 class="w-full px-4 py-3 bg-[#F4F7F3] border border-[#DEE4DC] rounded-xl text-sm focus:outline-none focus:border-[#2A6046] transition">
                             <div class="flex items-center gap-2 pt-1">
                                 <input type="checkbox" id="anon-check" onchange="toggleAnon(this)" class="w-4 h-4 text-[#2A6046] rounded border-[#DEE4DC] focus:ring-[#2A6046]">
@@ -167,7 +174,7 @@
                             <label class="block text-xs font-bold uppercase tracking-wider text-[#1F3B2E]">
                                 Nomor WhatsApp <span class="text-rose-500">*</span>
                             </label>
-                            <input type="tel" name="whatsapp" required placeholder="0812 3456 7890"
+                            <input type="tel" name="whatsapp" value="{{ old('whatsapp', Auth::user()->phone ?? '') }}" required placeholder="0812 3456 7890"
                                 class="w-full px-4 py-3 bg-[#F4F7F3] border border-[#DEE4DC] rounded-xl text-sm focus:outline-none focus:border-[#2A6046] transition">
                             <span class="text-[11px] text-[#5F6A64] block">Untuk konfirmasi penerimaan dan pengiriman tanda terima resmi.</span>
                         </div>

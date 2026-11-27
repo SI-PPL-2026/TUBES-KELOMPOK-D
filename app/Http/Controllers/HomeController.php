@@ -9,6 +9,7 @@ use App\Models\Review;
 use App\Models\AidRequest;
 use App\Models\Donation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -175,7 +176,40 @@ class HomeController extends Controller
 
     public function aidStore(Request $request)
     {
-        return redirect()->route('aid.create')->with('success', 'Pengajuan bantuan Anda berhasil dikirim! Tim relawan SIDAPUR akan segera memverifikasi data dan menghubungi Anda via WhatsApp.');
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'whatsapp' => ['required', 'string', 'max:30'],
+            'university' => ['required', 'string', 'max:255'],
+            'nim' => ['required', 'string', 'max:100'],
+            'reason' => ['required', 'string', 'max:2000'],
+            'ktm_photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
+        ]);
+
+        $ktmPath = null;
+        if ($request->hasFile('ktm_photo')) {
+            $ktmPath = $request->file('ktm_photo')->store('ktm', 'public');
+        }
+
+        AidRequest::create([
+            'user_id' => Auth::id(),
+            'applicant_name' => $validated['name'],
+            'whatsapp' => $validated['whatsapp'],
+            'university' => $validated['university'],
+            'nim' => $validated['nim'],
+            'assistance_type' => 'porsi_makan',
+            'reason' => $validated['reason'],
+            'ktm_photo' => $ktmPath,
+            'nominal' => 15000,
+            'status' => 'pending',
+        ]);
+
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            return redirect()->route('dashboard', ['tab' => 'aid'])
+                ->with('success', 'Pengajuan bantuan Anda berhasil dikirim! Tim relawan SIDAPUR akan segera memverifikasi data Anda.');
+        }
+
+        return redirect()->route('aid.create')
+            ->with('success', 'Pengajuan bantuan Anda berhasil dikirim! Tim relawan SIDAPUR akan segera memverifikasi data dan menghubungi Anda via WhatsApp.');
     }
 
     public function donationCreate()
@@ -185,7 +219,36 @@ class HomeController extends Controller
 
     public function donationStore(Request $request)
     {
-        return redirect()->route('donation.create')->with('success', 'Konfirmasi donasi Anda berhasil diterima! Terima kasih atas kebaikan Anda membantu mahasiswa yang membutuhkan.');
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:1000'],
+            'name' => ['required', 'string', 'max:255'],
+            'whatsapp' => ['required', 'string', 'max:30'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'proof' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
+        ]);
+
+        $proofPath = null;
+        if ($request->hasFile('proof')) {
+            $proofPath = $request->file('proof')->store('donations', 'public');
+        }
+
+        Donation::create([
+            'user_id' => Auth::id(),
+            'donor_name' => $validated['name'],
+            'whatsapp' => $validated['whatsapp'],
+            'amount' => $validated['amount'],
+            'message' => $validated['notes'] ?? null,
+            'transfer_proof' => $proofPath,
+            'status' => 'pending',
+        ]);
+
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            return redirect()->route('dashboard', ['tab' => 'donations'])
+                ->with('success', 'Konfirmasi donasi Anda berhasil dikirim! Admin akan segera memverifikasi bukti transfer Anda.');
+        }
+
+        return redirect()->route('donation.create')
+            ->with('success', 'Konfirmasi donasi Anda berhasil diterima! Terima kasih atas kebaikan Anda membantu mahasiswa yang membutuhkan.');
     }
 
     public function login()

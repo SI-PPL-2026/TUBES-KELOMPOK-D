@@ -13,6 +13,10 @@ class AidRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'applicant_name',
+        'whatsapp',
+        'university',
+        'nim',
         'assistance_type',
         'reason',
         'ktm_photo',

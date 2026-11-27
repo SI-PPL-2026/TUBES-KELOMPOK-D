@@ -14,6 +14,8 @@ class Donation extends Model
     protected $fillable = [
         'user_id',
         'payment_method_id',
+        'donor_name',
+        'whatsapp',
         'amount',
         'message',
         'transfer_proof',

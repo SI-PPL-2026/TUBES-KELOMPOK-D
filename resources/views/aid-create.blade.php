@@ -99,13 +99,20 @@
 
                     <form action="{{ route('aid.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                         @csrf
+                        @if ($errors->any())
+                            <div class="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-semibold space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <p>• {{ $error }}</p>
+                                @endforeach
+                            </div>
+                        @endif
                         
                         <!-- Nama Lengkap -->
                         <div class="space-y-1.5">
                             <label class="block text-xs font-bold uppercase tracking-wider text-[#1F3B2E]">
                                 Nama Lengkap <span class="text-rose-500">*</span>
                             </label>
-                            <input type="text" name="name" required placeholder="Nama lengkap sesuai identitas mahasiswa"
+                            <input type="text" name="name" value="{{ old('name', Auth::user()->name ?? '') }}" required placeholder="Nama lengkap sesuai identitas mahasiswa"
                                 class="w-full px-4 py-3 bg-[#F4F7F3] border border-[#DEE4DC] rounded-xl text-sm focus:outline-none focus:border-[#2A6046] transition">
                         </div>
 
@@ -114,7 +121,7 @@
                             <label class="block text-xs font-bold uppercase tracking-wider text-[#1F3B2E]">
                                 Nomor WhatsApp Aktif <span class="text-rose-500">*</span>
                             </label>
-                            <input type="tel" name="whatsapp" required placeholder="Contoh: 0812 3456 7890"
+                            <input type="tel" name="whatsapp" value="{{ old('whatsapp', Auth::user()->phone ?? '') }}" required placeholder="Contoh: 0812 3456 7890"
                                 class="w-full px-4 py-3 bg-[#F4F7F3] border border-[#DEE4DC] rounded-xl text-sm focus:outline-none focus:border-[#2A6046] transition">
                             <span class="text-[11px] text-[#5F6A64] block">Admin akan menghubungi nomor ini untuk konfirmasi tiket porsi makan.</span>
                         </div>
